@@ -21,6 +21,7 @@
 Library for common loan calculations.
 
 ## Notation
+
 A _loan_ is a fixed value of money borrowed by an entity and usually repaid over a series of instalments.
 
 The following notation is used throughout this project for loans:
@@ -35,11 +36,11 @@ The following notation is used throughout this project for loans:
 - `B_n`: The balance on the loan at period `n`
 
 The repayment for a loan, `P_n`, is split into two parts:
+
 - The _principal_ part, `P_{P, n}`, which is paying off the original money that was borrowed.
 - The _interest_ part, `P_{I, n}`, which is paying off the interest applied on the loan.
 
 In 'real life', a loan can have other components such as fees. These are outside the scope of this project.
-
 
 ## Calculations
 

@@ -1,6 +1,7 @@
 """
 Different types of loans and ways to set them up.
 """
+
 from __future__ import annotations
 
 import abc
@@ -13,7 +14,6 @@ from loan_calcs.data import (
     InterestRateType,
     RepaymentType,
     _calculate_amortised_rate,
-    _decimal,
     _to_decimal,
 )
 
@@ -43,6 +43,7 @@ class Loan(abc.ABC):
     In 'real life', a loan can have other components such as fees. These are
     outside the scope of these objects.
     """
+
     type: RepaymentType = NotImplemented
 
     def __init__(
@@ -53,7 +54,7 @@ class Loan(abc.ABC):
         total_repayments: Decimal,
         fixed_periodic_repayment: Decimal,
         before_or_after: InterestApplyMethod = InterestApplyMethod.BEFORE,
-        interest_rate_type: InterestRateType = InterestRateType.VARIABLE
+        interest_rate_type: InterestRateType = InterestRateType.VARIABLE,
     ) -> None:
         """
         Create a loan.
@@ -80,7 +81,7 @@ class Loan(abc.ABC):
         total_repayments: Decimal | int,
         fixed_periodic_repayment: Decimal | float,
         before_or_after: InterestApplyMethod = InterestApplyMethod.BEFORE,
-        interest_rate_type: InterestRateType = InterestRateType.VARIABLE
+        interest_rate_type: InterestRateType = InterestRateType.VARIABLE,
     ) -> Self:
         """
         Build the loan using all 4 of the key components.
@@ -103,7 +104,7 @@ class Loan(abc.ABC):
         total_repayments: Decimal | int | None = None,
         fixed_periodic_repayment: Decimal | float | None = None,
         before_or_after: InterestApplyMethod = InterestApplyMethod.BEFORE,
-        interest_rate_type: InterestRateType = InterestRateType.VARIABLE
+        interest_rate_type: InterestRateType = InterestRateType.VARIABLE,
     ) -> Self:
         """
         Create a loan.
@@ -117,8 +118,12 @@ class Loan(abc.ABC):
         kwargs = {
             "loan_amount": _to_decimal(loan_amount) if loan_amount else None,
             "interest_rate": _to_decimal(interest_rate) if interest_rate else None,
-            "total_repayments": int(total_repayments),
-            "fixed_periodic_repayment": _to_decimal(fixed_periodic_repayment) if fixed_periodic_repayment else None,
+            "total_repayments": int(total_repayments) if total_repayments else None,
+            "fixed_periodic_repayment": (
+                _to_decimal(fixed_periodic_repayment)
+                if fixed_periodic_repayment
+                else None
+            ),
             "before_or_after": before_or_after,
             "interest_rate_type": interest_rate_type,
             "total_amortised_rate": _calculate_amortised_rate(
@@ -127,10 +132,20 @@ class Loan(abc.ABC):
             ),
         }
 
-        if None not in (loan_amount, interest_rate, total_repayments, fixed_periodic_repayment):
+        if None not in (
+            loan_amount,
+            interest_rate,
+            total_repayments,
+            fixed_periodic_repayment,
+        ):
             raise ValueError("No validation for all not None arguments yet.")
-        elif loan_amount is None:
-            assert None not in (interest_rate, total_repayments, fixed_periodic_repayment)
+
+        if loan_amount is None:
+            assert None not in (
+                interest_rate,
+                total_repayments,
+                fixed_periodic_repayment,
+            )
             loan_amount = cls._build__calculate_loan_amount(**kwargs)
         elif interest_rate is None:
             assert None not in (loan_amount, total_repayments, fixed_periodic_repayment)
@@ -140,7 +155,9 @@ class Loan(abc.ABC):
             total_repayments = cls._build__calculate_total_repayments(**kwargs)
         elif fixed_periodic_repayment is None:
             assert None not in (loan_amount, interest_rate, total_repayments)
-            fixed_periodic_repayment = cls._build__calculate_fixed_periodic_repayment(**kwargs)
+            fixed_periodic_repayment = cls._build__calculate_fixed_periodic_repayment(
+                **kwargs
+            )
         else:
             raise ValueError("Something has gone really wrong.")
 
@@ -165,28 +182,36 @@ class Loan(abc.ABC):
         """
         Calculate the loan amount, :math:`L`.
         """
-        raise NotImplementedError(f"{cls}._build__calculate_loan_amount has not been defined")
+        raise NotImplementedError(
+            f"{cls}._build__calculate_loan_amount has not been defined"
+        )
 
     @classmethod
     def _build__calculate_interest_rate(cls, **kwargs) -> Decimal:
         """
         Calculate the loan interest rate, :math:`R`.
         """
-        raise NotImplementedError(f"{cls}._build__calculate_interest_rate has not been defined")
+        raise NotImplementedError(
+            f"{cls}._build__calculate_interest_rate has not been defined"
+        )
 
     @classmethod
     def _build__calculate_fixed_periodic_repayment(cls, **kwargs) -> Decimal:
         """
         Calculate the periodic repayment value, :math:`P`.
         """
-        raise NotImplementedError(f"{cls}._build__calculate_fixed_periodic_repayment has not been defined")
+        raise NotImplementedError(
+            f"{cls}._build__calculate_fixed_periodic_repayment has not been defined"
+        )
 
     @classmethod
     def _build__calculate_total_repayments(cls, **kwargs) -> Decimal:
         """
         Calculate the total number of repayments, :math:`N`.
         """
-        raise NotImplementedError(f"{cls}._build__calculate_total_repayments has not been defined")
+        raise NotImplementedError(
+            f"{cls}._build__calculate_total_repayments has not been defined"
+        )
 
     @abc.abstractmethod
     def calculate_balance_at_period(self, period: int) -> Decimal:
@@ -194,21 +219,18 @@ class Loan(abc.ABC):
         Calculate the loan balance, :math:`B_{n}`, at the end of period
         :math:`n`.
         """
-        pass
 
     @abc.abstractmethod
     def calculate_repayment_principal_at_period(self, period: int) -> Decimal:
         """
         Calculate the principal part of the repayment due on period :math:`n`.
         """
-        pass
 
     @abc.abstractmethod
     def calculate_repayment_interest_at_period(self, period: int) -> Decimal:
         """
         Calculate the interest part of the repayment due on period :math:`n`.
         """
-        pass
 
     @abc.abstractmethod
     def calculate_cumulative_interest(self, period: int) -> Decimal:
@@ -219,7 +241,6 @@ class Loan(abc.ABC):
         In Financial terms, this is called the "interest income" (for the
         bank/entity that issued the loan).
         """
-        pass
 
 
 class FixedRepaymentLoan(Loan):
@@ -268,7 +289,9 @@ class FixedRepaymentLoan(Loan):
         """
         Calculate the loan interest rate, :math:`R`.
         """
-        raise NotImplementedError(f"{type(self).__name__}._build__calculate_interest_rate has not been defined")
+        raise NotImplementedError(
+            f"{type(self).__name__}._build__calculate_interest_rate has not been defined"
+        )
 
     @staticmethod
     # @_decimal(round_to=2)
@@ -328,8 +351,7 @@ class FixedRepaymentLoan(Loan):
         """
         denominator = Decimal(
             fixed_periodic_repayment
-            - loan_amount
-            * interest_rate ** (Decimal(1) - before_or_after.value)
+            - loan_amount * interest_rate ** (Decimal(1) - before_or_after.value)
         )
 
         if denominator <= 0:
@@ -338,11 +360,11 @@ class FixedRepaymentLoan(Loan):
                 "The values of the loan amount, interest rate, and periodic"
                 " repayment lead to an unbounded number of repayments."
             )
-        else:
-            return math.ceil(
-                math.log(fixed_periodic_repayment / denominator)
-                / math.log(interest_rate + Decimal(1))
-            )
+
+        return math.ceil(
+            math.log(fixed_periodic_repayment / denominator)
+            / math.log(interest_rate + Decimal(1))
+        )
 
     # @_decimal(round_to=2)
     def calculate_balance_at_period(self, period: int) -> Decimal:
@@ -357,15 +379,13 @@ class FixedRepaymentLoan(Loan):
 
             B_{n} = L(1 + R)^{n} - PR^{b - 1}((1 + R)^{n} - 1)
         """
-        amortised_rate = _calculate_amortised_rate(self.interest_rate, _to_decimal(period))  # (1 + R)^{n}
-        return (
-            self.loan_amount
-            * amortised_rate
-            - (
-                self.periodic_repayment
-                * (self.interest_rate ** (self.before_or_after.value - 1))
-                * (amortised_rate - Decimal(1))
-            )
+        amortised_rate = _calculate_amortised_rate(
+            self.interest_rate, _to_decimal(period)
+        )  # (1 + R)^{n}
+        return self.loan_amount * amortised_rate - (
+            self.periodic_repayment
+            * (self.interest_rate ** (self.before_or_after.value - 1))
+            * (amortised_rate - Decimal(1))
         )
 
     # @_decimal(round_to=2)
@@ -386,7 +406,9 @@ class FixedRepaymentLoan(Loan):
 
             P_{P, n} = P + PR^{b}((1 + R)^{n - 1} - 1) - LR(1 + R)^{n - 1}
         """
-        return self.periodic_repayment - self.calculate_repayment_interest_at_period(period=period)
+        return self.periodic_repayment - self.calculate_repayment_interest_at_period(
+            period=period
+        )
 
     # @_decimal(round_to=2)
     def calculate_repayment_interest_at_period(self, period: int) -> Decimal:
@@ -421,7 +443,9 @@ class FixedRepaymentLoan(Loan):
 
             I_{n} = TODO: formula here, also decide on notation for this (\\sum I_{k} or I_{n})
         """
-        raise NotImplementedError(f"{type(self).__name__}.calculate_cumulative_interest has not been defined")
+        raise NotImplementedError(
+            f"{type(self).__name__}.calculate_cumulative_interest has not been defined"
+        )
 
 
 class FixedPrincipalLoan(Loan):
@@ -440,7 +464,10 @@ class FixedPrincipalLoan(Loan):
     type = RepaymentType.FIXED_PRINCIPAL
 
     @property
-    def principal_repayment(self, custom_periodic_repayment: Decimal | None = None) -> Decimal:
+    def principal_repayment(
+        self,
+        custom_periodic_repayment: Decimal | None = None,
+    ) -> Decimal:
         """
         Calculate the principal component of the period repayment.
 
@@ -453,13 +480,14 @@ class FixedPrincipalLoan(Loan):
         calculated_principal_repayment = self.loan_amount / self.total_repayments
         if custom_periodic_repayment is None:
             return calculated_principal_repayment
-        elif custom_periodic_repayment > calculated_principal_repayment:
+
+        if custom_periodic_repayment > calculated_principal_repayment:
             raise ValueError(
                 f"The custom periodic repayment amount, {custom_periodic_repayment:.4f}, exceeds the maximum value "
                 f"allowed by the loan value and the number of repayments, {calculated_principal_repayment:.4f}"
             )
-        else:
-            return custom_periodic_repayment
+
+        return custom_periodic_repayment
 
     @staticmethod
     # @_decimal(round_to=2)
@@ -483,13 +511,14 @@ class FixedPrincipalLoan(Loan):
         calculated_loan_amount = fixed_periodic_repayment * total_repayments
         if custom_loan_amount is None:
             return calculated_loan_amount
-        elif custom_loan_amount > calculated_loan_amount:
+
+        if custom_loan_amount > calculated_loan_amount:
             raise ValueError(
                 f"The custom loan amount, {custom_loan_amount:.4f}, exceeds the minimum value allowed by the principal "
                 f"repayment amount and the number of repayments, {calculated_loan_amount:.4f}"
             )
-        else:
-            return custom_loan_amount
+
+        return custom_loan_amount
 
     # @staticmethod
     # @_decimal(round_to=2)
@@ -497,7 +526,9 @@ class FixedPrincipalLoan(Loan):
         """
         Calculate the loan interest rate, :math:`R`.
         """
-        raise NotImplementedError(f"{type(self).__name__}._build__calculate_interest_rate has not been defined")
+        raise NotImplementedError(
+            f"{type(self).__name__}._build__calculate_interest_rate has not been defined"
+        )
 
     @staticmethod
     # @_decimal(round_to=2)
@@ -532,13 +563,14 @@ class FixedPrincipalLoan(Loan):
         calculated_periodic_repayment = loan_amount / total_repayments
         if custom_periodic_repayment is None:
             return calculated_periodic_repayment
-        elif custom_periodic_repayment > calculated_periodic_repayment:
+
+        if custom_periodic_repayment > calculated_periodic_repayment:
             raise ValueError(
                 f"The custom periodic repayment amount, {custom_periodic_repayment:.4f}, exceeds the maximum value "
                 f"allowed by the loan value and the number of repayments, {calculated_periodic_repayment:.4f}"
             )
-        else:
-            return custom_periodic_repayment
+
+        return custom_periodic_repayment
 
     @staticmethod
     # @_decimal()
@@ -562,13 +594,14 @@ class FixedPrincipalLoan(Loan):
         calculated_total_repayments = math.ceil(loan_amount / fixed_periodic_repayment)
         if custom_total_repayments is None:
             return calculated_total_repayments
-        elif custom_total_repayments > calculated_total_repayments:
+
+        if custom_total_repayments > calculated_total_repayments:
             raise ValueError(
                 f"The custom number of repayments, {custom_total_repayments:.4f}, exceeds the maximum value "
                 f"allowed by the loan value and the principal repayment value, {calculated_total_repayments:.4f}"
             )
-        else:
-            return custom_total_repayments
+
+        return custom_total_repayments
 
     # @_decimal(round_to=2)
     def calculate_balance_at_period(self, period: Decimal) -> Decimal:
@@ -593,12 +626,16 @@ class FixedPrincipalLoan(Loan):
     # @_decimal(round_to=2)
     def calculate_repayment_principal_at_period(self, period: int) -> Decimal:
         """"""
-        raise NotImplementedError(f"{type(self).__name__}.calculate_repayment_principal_at_period has not been defined")
+        raise NotImplementedError(
+            f"{type(self).__name__}.calculate_repayment_principal_at_period has not been defined"
+        )
 
     # @_decimal(round_to=2)
     def calculate_repayment_interest_at_period(self, period: int) -> Decimal:
         """"""
-        raise NotImplementedError(f"{type(self).__name__}.calculate_repayment_interest_at_period has not been defined")
+        raise NotImplementedError(
+            f"{type(self).__name__}.calculate_repayment_interest_at_period has not been defined"
+        )
 
     # @_decimal(round_to=2)
     def calculate_cumulative_interest(self, period: int) -> Decimal:
@@ -613,7 +650,6 @@ class FixedPrincipalLoan(Loan):
 
             I_{n} = TODO: formula here, also decide on notation for this (\\sum I_{k} or I_{n})
         """
-        pass
 
 
 class InterestOnlyLoan(Loan):
@@ -658,7 +694,9 @@ class InterestOnlyLoan(Loan):
         """
         Calculate the loan interest rate, :math:`R`.
         """
-        raise NotImplementedError(f"{type(self).__name__}._build__calculate_interest_rate has not been defined")
+        raise NotImplementedError(
+            f"{type(self).__name__}._build__calculate_interest_rate has not been defined"
+        )
 
     @staticmethod
     # @_decimal(round_to=2)
@@ -698,9 +736,11 @@ class InterestOnlyLoan(Loan):
         """
         if total_repayments is None:
             # TODO: Consider adding this capture somewhere else
-            raise ValueError("The total repayments must be supplied for an interest-only loan.")
-        else:
-            return total_repayments
+            raise ValueError(
+                "The total repayments must be supplied for an interest-only loan."
+            )
+
+        return total_repayments
 
     # @_decimal(round_to=2)
     def calculate_balance_at_period(self, period: Decimal) -> Decimal:
@@ -722,12 +762,16 @@ class InterestOnlyLoan(Loan):
     # @_decimal(round_to=2)
     def calculate_repayment_principal_at_period(self, period: int) -> Decimal:
         """"""
-        raise NotImplementedError(f"{type(self).__name__}.calculate_repayment_principal_at_period has not been defined")
+        raise NotImplementedError(
+            f"{type(self).__name__}.calculate_repayment_principal_at_period has not been defined"
+        )
 
     # @_decimal(round_to=2)
     def calculate_repayment_interest_at_period(self, period: int) -> Decimal:
         """"""
-        raise NotImplementedError(f"{type(self).__name__}.calculate_repayment_interest_at_period has not been defined")
+        raise NotImplementedError(
+            f"{type(self).__name__}.calculate_repayment_interest_at_period has not been defined"
+        )
 
     # @_decimal(round_to=2)
     def calculate_cumulative_interest(self, period: int) -> Decimal:
@@ -742,4 +786,3 @@ class InterestOnlyLoan(Loan):
 
             I_{n} = TODO: formula here, also decide on notation for this (\\sum I_{k} or I_{n})
         """
-        pass

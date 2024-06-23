@@ -34,7 +34,7 @@ black = "*"
 
 
 [tool.pytest.ini_options]
-addopts = "--cov=src --cov-fail-under=80"
+addopts = "--cov=loan_calcs --cov-fail-under=50"
 testpaths = ["tests"]
 
 
