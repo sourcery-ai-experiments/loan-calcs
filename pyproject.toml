@@ -4,13 +4,12 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry]
-name = "python-template"
+name = "loan-calcs"
 version = "0.0.0"
-description = ""
+description = "Library for common loan calculations."
 authors = ["Bilbottom"]
 readme = "README.md"
-packages = [{include = "src"}]
-#package-mode = false
+packages = [{include = "loan_calcs"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
