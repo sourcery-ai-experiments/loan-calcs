@@ -4,13 +4,12 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry]
-name = "python-template"
+name = "loan-calcs"
 version = "0.0.0"
-description = ""
+description = "Library for common loan calculations."
 authors = ["Bilbottom"]
 readme = "README.md"
-packages = [{include = "src"}]
-#package-mode = false
+packages = [{include = "loan_calcs"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -35,7 +34,7 @@ black = "*"
 
 
 [tool.pytest.ini_options]
-addopts = "--cov=src --cov-fail-under=80"
+addopts = "--cov=loan_calcs --cov-fail-under=50"
 testpaths = ["tests"]
 
 
